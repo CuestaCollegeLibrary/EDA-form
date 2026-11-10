@@ -1,0 +1,130 @@
+<div class="semester-box">
+  <mat-form-field class="full">
+    <mat-label>Semester</mat-label>
+    <input matInput [(ngModel)]="semester" placeholder="e.g. Fall 2026" autocomplete="off">
+    <mat-hint *ngIf="semesterOk">Note text: “{{ noteExample }}”</mat-hint>
+    <mat-hint *ngIf="!semesterOk">Enter the semester before recording anything.</mat-hint>
+  </mat-form-field>
+</div>
+
+<mat-tab-group animationDuration="0ms">
+
+  <!-- ========== One patron ========== -->
+  <mat-tab label="One patron">
+    <div class="pad">
+      <p class="help">Open a patron in Alma and this tab shows their status. Or look one up by ID.</p>
+
+      <div class="lookup">
+        <mat-form-field class="grow">
+          <mat-label>Student ID, barcode or primary ID</mat-label>
+          <input matInput [(ngModel)]="lookupId" (keyup.enter)="lookup()" autocomplete="off">
+        </mat-form-field>
+        <button mat-flat-button color="primary" class="btn-main" (click)="lookup()" [disabled]="patronBusy || !lookupId.trim()">Look up</button>
+      </div>
+
+      <mat-progress-bar mode="indeterminate" *ngIf="patronBusy"></mat-progress-bar>
+
+      <div class="alert-box error" role="alert" *ngIf="patronError">{{ patronError }}</div>
+      <div class="alert-box ok" role="status" *ngIf="patronMessage">{{ patronMessage }}</div>
+
+      <mat-card *ngIf="patron">
+        <mat-card-title>{{ patronName }}</mat-card-title>
+        <mat-card-subtitle>{{ patron.primary_id }}</mat-card-subtitle>
+        <mat-card-content>
+          <p class="status yes" *ngIf="patronHas">✔ Agreement on file for {{ live.semester || '(no semester)' }}</p>
+          <p class="status no" *ngIf="!patronHas">✖ No agreement note for {{ live.semester || '(no semester)' }}</p>
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-flat-button color="primary" class="btn-main" (click)="markSigned()"
+                  [disabled]="patronBusy || patronHas || !semesterOk">
+            Mark signed for {{ live.semester || '…' }}
+          </button>
+        </mat-card-actions>
+        <p class="fine">This adds one note. It does not change anything else on the patron record.</p>
+      </mat-card>
+    </div>
+  </mat-tab>
+
+  <!-- ========== A list ========== -->
+  <mat-tab label="From a list">
+    <div class="pad">
+      <p class="help">
+        Paste the Student ID column from the signed-agreement spreadsheet, or choose the file (.csv).
+        Nothing is changed until you check the list and confirm.
+      </p>
+
+      <div class="sheet-box" *ngIf="hasSheet">
+        <button mat-flat-button color="primary" class="btn-main" (click)="loadSheet()" [disabled]="sheetBusy || busy">
+          {{ sheetBusy ? 'Reading the sheet…' : 'Load sign-ups from the Google Sheet' }}
+        </button>
+        <p class="fine">Reads the published sheet only. Nothing changes in Alma until you check and confirm.</p>
+        <div class="alert-box error" role="alert" *ngIf="sheetError">{{ sheetError }}</div>
+      </div>
+
+      <textarea [(ngModel)]="pasteText" (input)="stage = 'input'" rows="5"
+                aria-label="Paste student IDs or spreadsheet rows"
+                placeholder="900123456&#10;900123457&#10;…"></textarea>
+      <div class="row-actions">
+        <input type="file" accept=".csv,.tsv,.txt" (change)="onFile($event)" aria-label="Choose a CSV file">
+        <button mat-stroked-button (click)="readList()" [disabled]="!pasteText.trim() || busy">Read list</button>
+        <button mat-button (click)="reset()" [disabled]="busy">Clear</button>
+      </div>
+
+      <p class="summary" *ngIf="parsedSummary">{{ parsedSummary }}</p>
+
+      <ng-container *ngIf="rows.length">
+        <div class="row-actions">
+          <button mat-flat-button color="primary" class="btn-main" (click)="check()" [disabled]="busy || !semesterOk">
+            1. Check these patrons in Alma (no changes)
+          </button>
+        </div>
+
+        <mat-progress-bar mode="determinate" *ngIf="busy" [value]="(progress / rows.length) * 100"></mat-progress-bar>
+
+        <p class="summary" *ngIf="stage !== 'input'">
+          Will add: <strong>{{ count('ready','adding','added') }}</strong> ·
+          Check name: <strong>{{ count('review') }}</strong> ·
+          Already done: <strong>{{ count('already') }}</strong> ·
+          Not found: <strong>{{ count('notfound') }}</strong> ·
+          Errors: <strong>{{ count('error','unverified') }}</strong>
+        </p>
+
+        <div class="alert-box error" role="status" *ngIf="stage === 'checked' && count('review') > 0">
+          {{ count('review') }} sign-up{{ count('review') === 1 ? '' : 's' }} typed a name that does not match the patron in Alma.
+          They will <strong>not</strong> get a note unless you tick “Add anyway” on that row.
+        </div>
+
+        <div class="apply" *ngIf="stage === 'checked' && readyCount > 0">
+          <mat-checkbox labelPosition="before" [(ngModel)]="confirmed">
+            Add the note “{{ noteExample }}” to {{ readyCount }} patron{{ readyCount === 1 ? '' : 's' }}.
+          </mat-checkbox>
+          <button mat-flat-button color="primary" class="btn-warn" (click)="apply()" [disabled]="!confirmed || busy">2. Add notes</button>
+        </div>
+        <div class="alert-box ok" role="status" *ngIf="stage === 'done'">
+          Finished. Added {{ count('added') }}. Review anything marked Error or Check in Alma.
+        </div>
+
+        <table class="results" *ngIf="rows.length">
+          <thead><tr><th>ID</th><th>Patron</th><th>Result</th></tr></thead>
+          <tbody>
+            <tr *ngFor="let r of rows" [class]="'s-' + r.status">
+              <td>{{ r.id }}</td>
+              <td>{{ r.name }}</td>
+              <td>
+                {{ label(r.status) }}<span class="detail" *ngIf="r.message"> — {{ r.message }}</span>
+                <span class="detail" *ngIf="r.status === 'review' && r.formName"><br>Form: “{{ r.formName }}” · Alma: {{ r.name }}</span>
+                <label class="anyway" *ngIf="r.status === 'review' && stage === 'checked'">
+                  <input type="checkbox" [(ngModel)]="r.approved" [attr.aria-label]="'Add anyway for ' + r.id"> Add anyway
+                </label>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="row-actions" *ngIf="stage !== 'input'">
+          <button mat-stroked-button (click)="downloadReport()">Download results (CSV)</button>
+        </div>
+      </ng-container>
+    </div>
+  </mat-tab>
+</mat-tab-group>
