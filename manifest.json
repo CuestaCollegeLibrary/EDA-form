@@ -18,5 +18,8 @@
       "https://docs.google.com",
       "https://*.googleusercontent.com"
     ]
-  }
+  },
+  "relevantForInst": [
+    "01CACCL_CUESTA"
+  ]
 }
