@@ -1,0 +1,11 @@
+@use '@angular/material' as mat;
+
+@mixin main-component-theme($theme, $typgraphy) {
+  div.highlight {
+    border: mat.get-theme-color($theme, primary) solid 2px;
+    color: mat.get-theme-color($theme, on-primary-container);
+    background-color: mat.get-theme-color($theme, primary-container);
+    padding: 5px;
+    font-weight: bolder;
+  }
+}

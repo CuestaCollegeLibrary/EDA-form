@@ -1,0 +1,43 @@
+.full { width: 100%; }
+.grow { flex: 1; }
+.pad { padding: 12px 4px; }
+.help { color: #555; margin: 0 0 12px; }
+.fine { color: #666; font-size: 12px; margin: 8px 16px 12px; }
+.lookup { display: flex; gap: 8px; align-items: baseline; }
+.semester-box { margin: 8px 0 0; }
+
+textarea {
+  width: calc(100% - 8px);
+  max-width: calc(100% - 8px);
+  padding: 6px;
+  font-family: monospace;
+  border: 1px solid #999;
+  border-radius: 4px;
+}
+
+.row-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 10px 0; }
+.summary { margin: 8px 0; }
+.apply { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; padding: 10px; border: 1px solid #c97a00; border-radius: 4px; background: #fff8ec; margin: 10px 0; }
+
+.alert-box { padding: 8px 10px; border-radius: 4px; margin: 8px 0; }
+.alert-box.error { background: #fdecea; border: 1px solid #b3261e; color: #7a1712; }
+.alert-box.ok { background: #e7f4ea; border: 1px solid #1e6b34; color: #14502a; }
+
+.status { font-weight: 600; margin: 8px 0; }
+.status.yes { color: #14502a; }
+.status.no { color: #8a5300; }
+
+table.results { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 8px; }
+table.results th, table.results td { text-align: left; padding: 4px 6px; border-bottom: 1px solid #ddd; }
+table.results .detail { color: #666; }
+tr.s-error td, tr.s-notfound td, tr.s-unverified td { color: #7a1712; }
+tr.s-review td { color: #7a4a00; }
+.sheet-box { margin: 0 0 12px; }
+.sheet-box .fine { margin: 6px 0 0; }
+label.anyway { display: block; margin-top: 4px; }
+tr.s-added td, tr.s-already td { color: #14502a; }
+
+// Explicit colors so the main actions stay visible whatever theme Alma applies. Both pass WCAG AA with white text.
+button.btn-main:not(:disabled) { background-color: #0b5cad !important; color: #ffffff !important; }
+button.btn-warn:not(:disabled) { background-color: #b3261e !important; color: #ffffff !important; }
+button:focus-visible { outline: 3px solid #1a1a1a; outline-offset: 2px; }

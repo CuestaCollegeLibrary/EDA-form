@@ -1,0 +1,22 @@
+{
+  "id": "cuesta-device-agreements",
+  "version": "0.2.1",
+  "title": "Device Agreements",
+  "subtitle": "Signed electronic device loan agreements",
+  "author": "Cuesta College Library",
+  "description": "Staff tool to check and record signed electronic device loan agreements as pop-up notes on Alma patron records.",
+  "license": "BSD-3-Clause",
+  "pages": {
+    "config": "/#/config"
+  },
+  "fullscreen": {
+    "allow": false,
+    "open": false
+  },
+  "contentSecurity": {
+    "connectSrc": [
+      "https://docs.google.com",
+      "https://*.googleusercontent.com"
+    ]
+  }
+}
