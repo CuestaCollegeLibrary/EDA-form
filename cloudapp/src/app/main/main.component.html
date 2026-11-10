@@ -19,7 +19,7 @@
           <mat-label>Student ID, barcode or primary ID</mat-label>
           <input matInput [(ngModel)]="lookupId" (keyup.enter)="lookup()" autocomplete="off">
         </mat-form-field>
-        <button mat-flat-button class="btn-main" (click)="lookup()" [disabled]="patronBusy || !lookupId.trim()">Look up</button>
+        <button mat-flat-button color="primary" class="btn-main" (click)="lookup()" [disabled]="patronBusy || !lookupId.trim()">Look up</button>
       </div>
 
       <mat-progress-bar mode="indeterminate" *ngIf="patronBusy"></mat-progress-bar>
@@ -35,7 +35,7 @@
           <p class="status no" *ngIf="!patronHas">✖ No agreement note for {{ live.semester || '(no semester)' }}</p>
         </mat-card-content>
         <mat-card-actions>
-          <button mat-flat-button class="btn-main" (click)="markSigned()"
+          <button mat-flat-button color="primary" class="btn-main" (click)="markSigned()"
                   [disabled]="patronBusy || patronHas || !semesterOk">
             Mark signed for {{ live.semester || '…' }}
           </button>
@@ -54,7 +54,7 @@
       </p>
 
       <div class="sheet-box" *ngIf="hasSheet">
-        <button mat-flat-button class="btn-main" (click)="loadSheet()" [disabled]="sheetBusy || busy">
+        <button mat-flat-button color="primary" class="btn-main" (click)="loadSheet()" [disabled]="sheetBusy || busy">
           {{ sheetBusy ? 'Reading the sheet…' : 'Load sign-ups from the Google Sheet' }}
         </button>
         <p class="fine">Reads the published sheet only. Nothing changes in Alma until you check and confirm.</p>
@@ -74,7 +74,7 @@
 
       <ng-container *ngIf="rows.length">
         <div class="row-actions">
-          <button mat-flat-button class="btn-main" (click)="check()" [disabled]="busy || !semesterOk">
+          <button mat-flat-button color="primary" class="btn-main" (click)="check()" [disabled]="busy || !semesterOk">
             1. Check these patrons in Alma (no changes)
           </button>
         </div>
@@ -95,10 +95,10 @@
         </div>
 
         <div class="apply" *ngIf="stage === 'checked' && readyCount > 0">
-          <mat-checkbox [(ngModel)]="confirmed">
+          <mat-checkbox labelPosition="before" [(ngModel)]="confirmed">
             Add the note “{{ noteExample }}” to {{ readyCount }} patron{{ readyCount === 1 ? '' : 's' }}.
           </mat-checkbox>
-          <button mat-flat-button class="btn-warn" (click)="apply()" [disabled]="!confirmed || busy">2. Add notes</button>
+          <button mat-flat-button color="primary" class="btn-warn" (click)="apply()" [disabled]="!confirmed || busy">2. Add notes</button>
         </div>
         <div class="alert-box ok" role="status" *ngIf="stage === 'done'">
           Finished. Added {{ count('added') }}. Review anything marked Error or Check in Alma.
